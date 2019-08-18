@@ -1,6 +1,6 @@
 
 
-export class Land extends Phaser.Physics.Matter.Sprite {
+export class LandImage extends Phaser.Physics.Matter.Sprite {
 	myType :string;
 
 	constructor(scene:Phaser.Scene, x:number,y:number, image:string, shape) {
@@ -13,6 +13,21 @@ export class Land extends Phaser.Physics.Matter.Sprite {
 	}
 
 }
+
+export class LandTilemap extends Phaser.Tilemaps.StaticTilemapLayer {
+	myType :string;
+
+	//constructor(scene:Phaser.Scene, x:number,y:number, image:string, shape) {
+		//super(scene, x, y, image, null, {shape: shape, isStatic:true});
+
+		//this.setPosition(x + this.centerOfMass.x, y + this.centerOfMass.y);
+		//this.myType='land';
+
+		//scene.add.existing(this);
+	//}
+
+}
+
 
 export interface Touch {
 	obj1: string;

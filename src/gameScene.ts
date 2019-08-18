@@ -2,7 +2,7 @@ import "phaser";
 import { Scene } from 'phaser';
 
 import { Player } from "./player";
-import { Land } from "./land";
+import { LandImage, LandTilemap } from "./land";
 import { Parallax } from "./parallax";
 
 import {level1, LevelData, ScreenData} from "./levels";
@@ -37,23 +37,28 @@ export class GameScene extends Scene {
 		this.load.image("grid", "assets/grid.png");
 		this.load.image("block", "assets/block.png");
 		this.load.image("hotdog", "assets/hotdog.png");
-		this.load.image("level1", "assets/level2.png");
+		this.load.image("level1", "assets/level1.png");
 		this.load.image("landing_pad", "assets/landing_pad.png");
 		
-		this.load.json('shapes', 'assets/sprites.json');
+		this.load.json('shapes', 'assets/shapes.json');
+
+		this.load.tilemapTiledJSON('tilemap', "assets/tilemap.json");
+		this.load.image("cave_tileset", "assets/cave_tileset.png");
 	}
 	
 	create(): void {
 		this.matter.world.setBounds(0, 0, this.screen.width, this.screen.height);
 		this.cameras.main.setBounds(0, 0, this.screen.width, this.screen.height /*3200, 600*/);
 
-		this.shapes = this.cache.json.get('shapes');
+		let map = this.add.tilemap('tilemap');
+		let tileset = map.addTilesetImage('cave_tileset');
 
 		this.screen.background.forEach( (data) => {
-			new Parallax(this, 0,0, data.image);
+			new Parallax(this, map, tileset, data.image, data.factor, data.pos);
 		});
 
-		this.land = new Land(this,0,0, this.screen.land.image, this.shapes[this.screen.land.shape]);
+		this.shapes = this.cache.json.get('shapes');
+		this.land = new LandImage(this,0,0, this.screen.land.image, this.shapes[this.screen.land.shape]);
 
 		//let touching = new Touching('player');
 		
@@ -94,6 +99,10 @@ export class GameScene extends Scene {
 
 		this.info = this.add.text(10, 10, '', { font: '24px Arial Bold', fill: '#FBFBAC' });
 		this.cursors = this.input.keyboard.createCursorKeys();
+		this.input.keyboard.once('keyup_ONE', function () {
+			this.scene.start('GameScene', { level: level1, screen: level1.screen[1] });
+	  }, this);
+
 	}
 
 	update(time: number): void {

@@ -1,12 +1,13 @@
 import "phaser";
 import { GameScene } from "./gameScene";
+import { MenuScene } from "./menuScene";
 
 const config: Phaser.Types.Core.GameConfig = {
 	title: "Space Taxi",
 	width: 800,
 	height: 600,
 	parent: "game",
-	scene: [GameScene],
+	scene: [MenuScene, GameScene],
 	physics: {
 		default: "matter",
 		matter: {
