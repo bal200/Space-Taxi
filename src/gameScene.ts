@@ -12,7 +12,8 @@ export class GameScene extends Scene {
 	info: Phaser.GameObjects.Text;
 
 	background :Parallax;
-	land: Land;
+	land: LandImage;
+	land2: LandTilemap;
 	pads :Phaser.Physics.Matter.Image[] =[];
 	player :Phaser.Physics.Matter.Sprite; 
 
@@ -58,7 +59,11 @@ export class GameScene extends Scene {
 		});
 
 		this.shapes = this.cache.json.get('shapes');
-		this.land = new LandImage(this,0,0, this.screen.land.image, this.shapes[this.screen.land.shape]);
+		if (this.screen.land.type=='image') {
+			this.land = new LandImage(this,0,0, this.screen.land.image, this.shapes[this.screen.land.shape]);
+		}else{
+			this.land2 = new LandTilemap(this, map, tileset, this.screen.land.image);
+		}
 
 		//let touching = new Touching('player');
 		

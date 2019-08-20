@@ -17,14 +17,16 @@ export class LandImage extends Phaser.Physics.Matter.Sprite {
 export class LandTilemap extends Phaser.Tilemaps.StaticTilemapLayer {
 	myType :string;
 
-	//constructor(scene:Phaser.Scene, x:number,y:number, image:string, shape) {
-		//super(scene, x, y, image, null, {shape: shape, isStatic:true});
+	constructor(scene:Phaser.Scene, map:Phaser.Tilemaps.Tilemap, 
+			tileset:Phaser.Tilemaps.Tileset, layerName:string ) {
 
-		//this.setPosition(x + this.centerOfMass.x, y + this.centerOfMass.y);
-		//this.myType='land';
-
-		//scene.add.existing(this);
-	//}
+		super(scene, map, map.getLayerIndex(layerName), tileset, 0,0);
+		//this = map.createStaticLayer(layerName, tileset,0,0);
+		
+		this.myType='land';
+		this.setOrigin(0, 0);
+		scene.add.existing(this);
+	}
 
 }
 

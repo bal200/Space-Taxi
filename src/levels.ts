@@ -11,7 +11,7 @@ export interface ScreenData {
 	id: number;
 	width: number;
 	height: number;
-	land: { image:string, shape:string },
+	land: any; //{ image:string, shape:string },
 	background: any[];
 	pads: PadData[];
 	doors?: DoorData[];
@@ -36,9 +36,10 @@ export const level1:LevelData = {
 			id: 1,
 			width: 800,
 			height: 600,
-			land: { image: 'level1', shape: 'level1'},
+			land: { type:'image', image: 'level1', shape: 'level1'},
 			background: [
-				{image: 'Tile Layer 1', factor: 0.2, pos: new Vec2(0, 0)}
+				{image: 'Tile Layer 2', factor: 0.3, pos: new Vec2(0, 50)},
+				{image: 'Tile Layer 1', factor: 0.15, pos: new Vec2(0, 0)}
 			],
 			pads: [
 				{id:1, pos: new Vec2(664, 254)},
@@ -52,7 +53,7 @@ export const level1:LevelData = {
 			id: 2,
 			width: 1000,
 			height: 800,
-			land: { image: 'level1', shape: 'level1'},
+			land: {type: 'tilemap', image: 'Tile Layer 3'},
 			background: [
 				/*{image: 'grid', factor: 0.2}*/
 				{image: 'Tile Layer 2', factor: 0.3, pos: new Vec2(0, 50)},
