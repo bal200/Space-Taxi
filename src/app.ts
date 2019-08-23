@@ -8,14 +8,17 @@ const config: Phaser.Types.Core.GameConfig = {
 	height: 600,
 	parent: "game",
 	scene: [MenuScene, GameScene],
+	//@ts-ignore
+	pixelArt: true,
+	//zoom: 2,
 	physics: {
 		default: "matter",
 		matter: {
 			gravity: { y: 0.5 },
 			debug: false
 		}
-	},
-	backgroundColor: "#10102D"
+	}
+	// backgroundColor: "#10102D"
 };
 
 export class SpaceTaxiGame extends Phaser.Game {

@@ -51,13 +51,13 @@ export const level1:LevelData = {
 			]
 		},{
 			id: 2,
-			width: 1000,
-			height: 800,
-			land: {type: 'tilemap', image: 'Tile Layer 3'},
+			width: 1600,
+			height: 1600,
+			land: {type: 'tilemap', image: 'L1_S1_fore'},
 			background: [
 				/*{image: 'grid', factor: 0.2}*/
-				{image: 'Tile Layer 2', factor: 0.3, pos: new Vec2(0, 50)},
-				{image: 'Tile Layer 1', factor: 0.15, pos: new Vec2(0, 0)}
+				{image: 'L1_S1_background', factor: 0.3, pos: new Vec2(0, 50)},
+				{image: 'L1_S1_midground', factor: 0.15, pos: new Vec2(0, 0)}
 
 			],
 			pads: [
@@ -70,6 +70,6 @@ export const level1:LevelData = {
 			]
 		}
 	],
-	shipStart: new Vec2(530, 100),
+	shipStart: new Vec2(430, 130),
 	shipStartScreen: 1
 }

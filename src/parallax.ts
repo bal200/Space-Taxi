@@ -15,6 +15,7 @@ export class Parallax extends Phaser.Tilemaps.StaticTilemapLayer {
 		//var layer = map.createStaticLayer('Tile Layer', tiles);
   
 		super(scene, map, map.getLayerIndex(layerName), tileset, pos.x, pos.y);  //, pos.x, pos.y);
+		this.setScale(1.5);
 		//this = map.createStaticLayer(layerName, tileset,0,0);
 /*'Tile Layer'*/
 		this.myType='background';

@@ -11,7 +11,6 @@ export class LandImage extends Phaser.Physics.Matter.Sprite {
 
 		scene.add.existing(this);
 	}
-
 }
 
 export class LandTilemap extends Phaser.Tilemaps.StaticTilemapLayer {
@@ -21,8 +20,12 @@ export class LandTilemap extends Phaser.Tilemaps.StaticTilemapLayer {
 			tileset:Phaser.Tilemaps.Tileset, layerName:string ) {
 
 		super(scene, map, map.getLayerIndex(layerName), tileset, 0,0);
+		this.setScale(1.5);
 		//this = map.createStaticLayer(layerName, tileset,0,0);
-		
+
+		this.setCollisionByProperty({ collides: true });
+		scene.matter.world.convertTilemapLayer(this);
+
 		this.myType='land';
 		this.setOrigin(0, 0);
 		scene.add.existing(this);

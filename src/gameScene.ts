@@ -78,6 +78,8 @@ export class GameScene extends Scene {
 		this.player.setFrictionAir(0.040);
 		this.player.setBounce(0.800);
 
+		// this.matter.world.createDebugGraphic();
+
 		this.matter.world.on('collisionstart', function (event, bodyA, bodyB) {
 			//if (bodyA) console.log("Force A "+bodyA.force.x+","+bodyA.force.y);
 			//if (bodyB) console.log("Force B "+bodyB.force.x+","+bodyB.force.y);
