@@ -20,8 +20,10 @@ export class LandTilemap extends Phaser.Tilemaps.StaticTilemapLayer {
 			tileset:Phaser.Tilemaps.Tileset, layerName:string ) {
 
 		super(scene, map, map.getLayerIndex(layerName), tileset, 0,0);
-		this.setScale(1.5);
-		//this = map.createStaticLayer(layerName, tileset,0,0);
+		const layerData = map.getLayer(layerName);
+		//layerData.properties.find( prop => prop.name == 'width' ).value;
+		
+		//this.setScale( (layerData.properties as any).scale );
 
 		this.setCollisionByProperty({ collides: true });
 		scene.matter.world.convertTilemapLayer(this);

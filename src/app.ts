@@ -10,7 +10,7 @@ const config: Phaser.Types.Core.GameConfig = {
 	scene: [MenuScene, GameScene],
 	//@ts-ignore
 	pixelArt: true,
-	//zoom: 2,
+	zoom: 1.0,
 	physics: {
 		default: "matter",
 		matter: {
