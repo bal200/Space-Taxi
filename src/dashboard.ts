@@ -1,38 +1,37 @@
-import { GameScene } from './gameScene';
 import { Person } from './person';
+import { SpaceTaxiGame } from './app';
 
 export interface Slot {
 	p: Person,
 	text?: Phaser.GameObjects.Text
 }
 
-export class Dashboard { //extends Phaser.GameObjects.Group {
+export class Dashboard extends Phaser.Scene {
 	info :Phaser.GameObjects.Text;
-	scene: GameScene;
+	game: SpaceTaxiGame;
 	slots: Slot[] = [];
 
-	constructor(scene: GameScene ) {
-		this.scene = scene;
-		//super(scene);
-		//this.setPosition(x + this.centerOfMass.x, y + this.centerOfMass.y);
-		//this.myType='land';
-		// scene.add.existing(this);
-
-		const h = scene.cameras.main.height;
-		const w = scene.cameras.main.width;
-		this.info = scene.add.text(10, h - 25, 'Text', { font: '24px Arial Bold', fill: '#FBFBAC' });
+	constructor( config ) {
+		super(config);
+	}
+	init() {
+		const h = this.cameras.main.height;
+		const w = this.cameras.main.width;
+		this.info = this.add.text(10, h - 25, 'Text', { font: '24px Arial Bold', fill: '#FBFBAC' });
 		this.info.setScrollFactor(0);
 
 	}
+	preload(): void {}
+	create(): void {}
 
 	public pickUp( p: Person ) {
-		this.info.destroy();
+		//this.info.destroy();
 		let slotNo = this.getFreeSlot();
 		let slot:Slot = this.slots[slotNo] = {p:p};
-		const w = this.scene.cameras.main.width;
-		const h = this.scene.cameras.main.height;
+		const w = this.cameras.main.width;
+		const h = this.cameras.main.height;
 		const x = w - (210 * (slotNo+1));
-		slot.text = this.scene.add.text(x, h - 25, 'Passenger '+p.id+' to pad '+p.toPad, 
+		slot.text = this.add.text(x, h - 25, 'Passenger '+p.id+' to pad '+p.toPad, 
 			{ font: '24px Arial Bold', fill: '#FBFBAC' });
 		slot.text.setScrollFactor(0);
 
@@ -59,6 +58,7 @@ export class Dashboard { //extends Phaser.GameObjects.Group {
 		}
 	}
 	
+	shutdown() {}
 
 
 }

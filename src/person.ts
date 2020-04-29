@@ -5,12 +5,14 @@ import { GameScene } from './gameScene';
 
 export class Person {
 	data: PersonData;
+	scene: GameScene;
 	sprite: Phaser.GameObjects.Sprite;
 	status?: 'waiting'|'onboard'|'arrived';
 	onPad: Pad;
 
 	constructor( myScene:GameScene, data:PersonData ) {
 		this.data = data;
+		this.scene = myScene;
 		// @ts-ignore
 		this.onPad = myScene.pads.find( (p:Pad) => p.padId == data.fromPad );
 
