@@ -8,11 +8,12 @@ export interface DoorMapData {
 	properties: any;
 	/* padId, face, toDoor, toScreen */
 }
+export type Face = 'left' | 'right';
 
 export class Door /*extends Phaser.Physics.Matter.Sprite*/ {
 	myType :string;
 	doorId : number;
-	face : string;
+	face : Face;
 	toDoor : number;
 	toScreen : number;
 	x:number; y:number; width:number; height:number;
@@ -42,7 +43,7 @@ export class Door /*extends Phaser.Physics.Matter.Sprite*/ {
 	}
 
 	checkIfDoor(x,y) {
-		
+
 	}
 
 }

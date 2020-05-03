@@ -3,7 +3,7 @@ import { SpaceTaxiGame } from './app';
 
 export interface Slot {
 	p: Person,
-	text?: Phaser.GameObjects.Text
+	text?: Phaser.GameObjects.Text,
 }
 
 export class Dashboard extends Phaser.Scene {
@@ -41,6 +41,11 @@ export class Dashboard extends Phaser.Scene {
 		let slotNo = this.findSlot(person)
 		let slot = this.slots[slotNo]
 		slot.text.destroy();
+		this.slots[slotNo] = null;
+	}
+	public kickOut( person: Person ) {
+		let slotNo = this.findSlot(person)
+		this.slots[slotNo].text.destroy();
 		this.slots[slotNo] = null;
 	}
 

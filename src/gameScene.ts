@@ -6,7 +6,6 @@ import { LandImage, LandTilemap } from "./land";
 import { Parallax } from "./parallax";
 
 import {levels, LevelData, ScreenData} from "./levels";
-import { Dashboard } from "./dashboard";
 import { Pad, PadMapData } from './pad';
 import { Door, DoorMapData } from './door';
 
@@ -18,9 +17,6 @@ export type Params = {
 }
 
 export class GameScene extends Scene {
-	info: Phaser.GameObjects.Text;
-	dashboard: Dashboard;
-
 	background :Parallax;
 	land: LandImage | LandTilemap;
 	pads: Pad[] =[];
@@ -36,6 +32,7 @@ export class GameScene extends Scene {
 	screen: ScreenData;
 
 	game: SpaceTaxiGame;
+	colCategoryLand: any; colCategoryShip: any; colCategoryPeople: any;
 
 	//constructor() { super() }
 
@@ -46,24 +43,39 @@ export class GameScene extends Scene {
 		this.level = levels[params.levelNum];
 		this.screen = this.level.screen[params.screenNum];
 
-		this.events.on('wake', this.wake);
-		this.events.on('resume', this.resume);
+		this.events.on('wake', this.wake.bind(this));
+		this.events.on('resume', this.resume.bind(this));
+		this.events.on('pause', this.pause.bind(this));
+
+		if (params.p) this.setPlayerInMotion(params.p, params.door);
 	}
 	wake(sys,params:Params) {
 		console.log("wake",params);
-		const p = params.p;
-		this.player.angle = p.angle;
-
+		if (params.p) this.setPlayerInMotion(params.p, params.door);
 	}
 	resume(sys,params:Params) {
 		console.log("resume",params);
 	}
+	setPlayerInMotion(p:Player, doorNum:number) {
+		if (!this.player) return;
+		const b = p.body as any; //Phaser.Physics.Matter.Body;
+//console.log("angle ", p.angle); console.log("velocity x", b.velocity.x ); console.log("velocity angular", b.angularVelocity);
+
+		this.player.setRotation( p.rotation );
+		this.player.setVelocity( b.velocity.x, b.velocity.y );
+		this.player.setAngularVelocity(b.angularVelocity);
+		if (doorNum != undefined) {
+			const d = this.doors.find(d => d.doorId==doorNum);
+			switch (d.face){
+				case 'right': this.player.x = d.x+d.width+1; this.player.y = d.y+(d.height/2); break;
+				case 'left':  this.player.x = d.x-1; this.player.y = d.y+(d.height/2); break;
+			}
+		}
+	}
 
 	preload(): void {
 		console.log("preload ", this.screenNum);
-		this.load.image("star", "assets/star.png");
-		this.load.image("grid", "assets/grid.png");
-		this.load.image("block", "assets/block.png");
+		this.load.spritesheet('person', 'assets/student_spritesheet_16x28.png', { frameWidth: 16, frameHeight: 28 });
 		this.load.image("taxi", "assets/yellow taxi 60px.png");
 		this.load.image("level1", "assets/level1.png");
 		this.load.image("landing_pad", "assets/landing_pad.png");
@@ -80,6 +92,10 @@ export class GameScene extends Scene {
 		let tileset = map.addTilesetImage('cave_tileset');
 		let objects = map.getObjectLayer(this.screen.objectLayer);
 
+		this.colCategoryLand = 0x0001;
+		this.colCategoryShip = this.matter.world.nextCategory();
+		this.colCategoryPeople = this.matter.world.nextCategory();
+
 		/***** PARALLAX BACKGROUNDS ******/
 		this.screen.background.forEach( (data) => {
 			new Parallax(this, map, tileset, data.image, data.factor, data.pos);
@@ -93,7 +109,6 @@ export class GameScene extends Scene {
 		}
 
 		this.cameras.main.setBounds(0, 0, this.land.width, this.land.height );
-		//this.matter.world.setBounds(0, 0, this.screen.width, this.screen.height);
 
 		/****** PADS ******/
 		if (this.screen.land.type=='image') {
@@ -107,54 +122,68 @@ export class GameScene extends Scene {
 		/****** DOORS ******/
 		let doorsData = map.filterObjects(objects, obj => obj.type === 'door') as unknown as DoorMapData[];
 		doorsData.forEach( d => { new Door(this, d) });
-console.log("Doors: ", this.doors);
 
 		/***** SHIP *******/
 		const shipStart:any = map.findObject(objects, obj => obj.name === "shipStart");
 		this.player = new Player(this, shipStart.x,shipStart.y, this.shapes.taxi);
 
-		//this.matter.world.createDebugGraphic();
+		this.matter.world.createDebugGraphic();
 
+		/******** COLISION DETECTION *****/
 		this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
-			this.game.progress.passengers.landedCheck( bodyA.gameObject as Pad );
+			this.game.progress.passengers.collisionStart( this, bodyA.gameObject as Pad, bodyB.gameObject as Pad );
+			
 		});
 		this.matter.world.on('collisionend', (event, bodyA, bodyB) => {
-			this.game.progress.passengers.collisionEnd( bodyA.gameObject as Pad );
+			this.game.progress.passengers.collisionEnd( this, bodyA.gameObject as Pad );
+		});
+
+		this.game.anims.create({
+			key: 'walk_left', frameRate: 8, repeat: -1,
+			frames: this.game.anims.generateFrameNumbers('person', { start: 0, end: 7 }),
+		});
+		this.game.anims.create({
+			key: 'walk_right', frameRate: 8, repeat: -1,
+			frames: this.game.anims.generateFrameNumbers('person', { start: 16, end: 23, first: 16 }),
+		});
+		this.game.anims.create({
+			key: 'standing', frameRate: 2, repeat: -1,
+			frames: this.game.anims.generateFrameNumbers('person', { frames: [8,8,8,9,8,9,8,8,8,8,10] }),
+		});
+		this.game.anims.create({
+			key: 'falling_left', frameRate: 2, repeat: -1,
+			frames: this.game.anims.generateFrameNumbers('person', { frames: [10] }),
 		});
 
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.input.keyboard.on('keyup_ONE', () => {
-			this.scene.sleep();
-			this.scene.run('L2_S0' );
+			this.jumpToScene(0, undefined)
 		}, this);
 		this.input.keyboard.on('keyup_TWO', () => {
-			this.scene.sleep();
-			this.scene.run('L2_S1' );
+			this.jumpToScene(1, undefined)
 		}, this);
 		
 
-		this.input.keyboard.on('keyup_Z', () => {
+		this.input.keyboard.on('keyup_K', () => {
 			console.log( "ship xy: (" +this.player.x.toFixed(0)+ "," +this.player.y.toFixed(0)+ ")" )
-	  });
+			this.game.progress.passengers.kickOut(this, this.player);
+		});
 
-	  this.cameras.main.startFollow(this.player, false, 0.1);
+		this.cameras.main.startFollow(this.player, false, 0.1);
 
 	}
 
 	update(time: number): void {
 
 		this.keyboardMovements( this.player )
-		this.stabilisers( this.player )
-  
+
 		this.doorCheck( this.player )
 	}
 
 	doorCheck( p:Player ) {
-		p.x
 		this.doors.forEach( d => {
 			if (p.x > d.x  &&  p.x < d.x+d.width &&
 				 p.y > d.y  &&  p.y < d.y+d.height) {
-					console.log("In door ", d.doorId);
 					this.jumpToScene(d.toScreen, d.toDoor)
 			}
 		})
@@ -162,45 +191,20 @@ console.log("Doors: ", this.doors);
 	jumpToScene(screenNum:number, door:number) {
 		this.scene.sleep();
 		this.scene.run('L'+this.levelNum+'_S'+screenNum, {
+			levelNum: this.levelNum,
+			screenNum,
 			p: this.player,
-			door: door,
+			door,
 		} as Params );
 
 		/* @TODO: */
 	}
 
-	keyboardMovements( player :Phaser.Physics.Matter.Sprite ) {
-		//player.setVelocity(0);
-		const th = 0.0015;
-		if (this.cursors.left.isDown) {
-			player.thrustBack(th * 0.5);
-			//player.applyForceFrom(new Phaser.Math.Vector2(-80.0, 0), new Phaser.Math.Vector2(0,-0.0001) );
-			//player.setAngularVelocity(-0.02);
-			
-		}
-		else if (this.cursors.right.isDown) {
-			player.thrust(th * 0.5);
-			//player.applyForceFrom(new Phaser.Math.Vector2(0, 0), new Phaser.Math.Vector2(0,-0.0001) );
-			//player.setAngularVelocity(+0.02);
-		}
-		if (this.cursors.up.isDown) {
-			player.thrustLeft(th);
-		}
-		else if (this.cursors.down.isDown) {
-			player.thrustRight(th * 0.5);
-		}
-	}
-
-	stabilisers(player :Phaser.Physics.Matter.Sprite ) {
-		let angle = player.angle;
-		let target = 0;
-		let change = (target-angle) ;
-		// console.log(angle.toFixed(0),change.toFixed(1));
-		if (change > +2)
-			player.applyForceFrom(new Phaser.Math.Vector2(0,0), new Phaser.Math.Vector2(0,-0.000005) );
-		
-		if (change < -2)
-			player.applyForceFrom(new Phaser.Math.Vector2(0,0), new Phaser.Math.Vector2(0,+0.000005) );
+	keyboardMovements( player: Player ) {
+		if (this.cursors.left.isDown)  player.goLeft();
+		else if (this.cursors.right.isDown)  player.goRight();
+		if (this.cursors.up.isDown)  player.goUp();
+		else if (this.cursors.down.isDown)  player.goDown();
 	}
 
 
@@ -212,7 +216,9 @@ console.log("Doors: ", this.doors);
 	// 	(pad as any).myType='pad';
 	// 	this.pads.push(pad);
 	// }
-
+	pause() {
+		console.log("pause");
+	}
 	shutdown() {
 		this.input.keyboard.shutdown();
 	}

@@ -4,6 +4,7 @@ import { Dashboard } from './dashboard';
 import { PersonData } from './levels';
 import { Pad } from './pad';
 import { GameScene } from './gameScene';
+import { Player } from './player';
 
 export class PassengerManager {
 	game: SpaceTaxiGame;
@@ -32,18 +33,24 @@ export class PassengerManager {
 				data.forEach( pdata => {
 					if (pdata.time == this.myTime) {
 						let scene=this.findPadsScene(pdata.fromPad);
-console.log("making person (pdata):",pdata);
-console.log("scene:", scene);
-
-						const p = new Person( scene, pdata );
+						const p = new Person( pdata );
 						this.people.push( p );
-						p.appear();
+						p.appear(scene);
 					}
 				})
 		}, 1000);
 		//	}
 		//})
 	}
+	public kickOut( scene:GameScene, player:Player) {
+		this.people.forEach(p => {
+			if (p.status=='onboard') {
+				p.kickOut(scene, player);
+				this.dashboard.kickOut( p )
+			}
+		});
+	}
+
 	/* find the gameScene that a Pad number is on */
 	findPadsScene( padNum: number ) : GameScene {
 		return (this.game.scenes as any).find( (scene:GameScene) => {
@@ -52,14 +59,13 @@ console.log("scene:", scene);
 		});
 	}
 
-	public watchPads( pads:Pad[] ) {
-		//this.pads = pads;
-	}
-
 	/* Called by collision detection. Checks if we landed and picked up anyone */
-	public landedCheck( obj:Pad ) {
-		if (obj && obj.myType == 'pad') {
+	public collisionStart( scene:GameScene, obj:Pad, obj2:Pad ) {
+		if (!obj || !obj2) return;
 
+		if ((obj.myType=='pad' && obj2.myType=='player') 
+		 || (obj.myType=='player' && obj2.myType=='pad')) {
+			console.log("player on a Pad");
 			this.people.forEach(p => {
 				if (p.status == 'waiting') {
 					if (p.onPad.padId == obj.padId) {
@@ -68,17 +74,20 @@ console.log("scene:", scene);
 					}
 				}else if (p.status == 'onboard') {
 					if (p.toPad == obj.padId) {
-						p.alight( obj )
+						p.alight( scene, obj )
 						this.dashboard.alight( p )
 					}
 				}
-
 			})
+		}
+		if ((obj.myType=='person' && obj2.myType=='player') 
+		 || (obj.myType=='player' && obj2.myType=='person')) {
+			console.log("player touching a person");
 		}
 	}
 
-	public collisionEnd(obj:Pad) {
-		
+	public collisionEnd(scene:GameScene, obj:Pad) {
+
 	}
 	
 

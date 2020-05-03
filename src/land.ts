@@ -4,7 +4,7 @@ export class LandImage extends Phaser.Physics.Matter.Sprite {
 	myType :string;
 
 	constructor(scene:Phaser.Scene, x:number,y:number, image:string, shape) {
-		super(scene.matter.world, x, y, image, null, {shape: shape, isStatic:true});
+		super(scene.matter.world, x, y, image, null, {shape: shape, isStatic:true} as any);
 
 		this.setPosition(x + this.centerOfMass.x, y + this.centerOfMass.y);
 		this.myType='land';

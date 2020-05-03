@@ -19,7 +19,7 @@ export class Pad extends Phaser.Physics.Matter.Sprite {
 		let y = (padTilemap ? padTilemap.y : padData.pos.y)
 
 		super( scene.matter.world, x,y, 'landing_pad', null, 
-				{shape: scene.shapes.landing_pad, isStatic:true} );
+				{shape: scene.shapes.landing_pad, isStatic:true} as any );
 
 		if (padTilemap) {
 			this.padId = parseInt(padTilemap.properties.find( prop => prop.name == 'padId' ).value);
@@ -27,6 +27,7 @@ export class Pad extends Phaser.Physics.Matter.Sprite {
 			this.padId = padData.id
 		//this.setPosition(padData.x /*+ pad.centerOfMass.x*/, y /*+ pad.centerOfMass.y*/);
 		this.myType = 'pad';
+		this.setCollisionCategory(scene.colCategoryLand);
 		scene.pads.push(this);
 
 		scene.add.existing(this);
